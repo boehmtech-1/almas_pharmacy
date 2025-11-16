@@ -4,11 +4,10 @@ from dotenv import load_dotenv
 from fastapi.openapi.utils import get_openapi
 from fastapi.staticfiles import StaticFiles
 
-
 load_dotenv()
 
 from app.database import Base, engine
-from app.routers import auth, medicine, sales, prediction,  alert
+from app.routers import auth, medicine, sales, prediction, alert
 
 Base.metadata.create_all(bind=engine)
 
@@ -22,17 +21,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# If you have a frontend build copied to backend/static, serve it:
+# create a backend/static folder with the built frontend files if you want backend to serve static assets
+try:
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+except Exception:
+    # ignore if static directory is absent in some environments
+    pass
 
 app.include_router(auth.router)
 app.include_router(medicine.router)
 app.include_router(sales.router)
 app.include_router(prediction.router)
 app.include_router(alert.router)
-
-
-
-
-
 
 
 def custom_openapi():
@@ -54,8 +55,12 @@ def custom_openapi():
         }
     }
 
-   
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
 app.openapi = custom_openapi
+
+# Minimal health endpoint for Railway / monitoring
+@app.get("/health", tags=["health"])
+async def health():
+    return {"status": "ok"}
