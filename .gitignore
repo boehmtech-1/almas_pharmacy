@@ -1,0 +1,15 @@
+# Backend
+backend/venv/
+backend/__pycache__/
+backend/.env
+
+# Frontend
+frontend/node_modules/
+frontend/.env
+
+# Generic
+*.log
+*.sqlite3
+.env
+.DS_Store
+Thumbs.db
